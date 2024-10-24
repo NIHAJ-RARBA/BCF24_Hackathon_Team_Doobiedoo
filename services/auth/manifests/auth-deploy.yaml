@@ -22,7 +22,7 @@ spec:
         - name: auth
           image: nihajrarba/auth  # Your image for the auth service
           ports:
-            - containerPort: 5001
+            - containerPort: 5050
           envFrom:
             - configMapRef:
                 name: auth-configmap  # Assuming your configuration is stored in a ConfigMap
