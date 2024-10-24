@@ -6,30 +6,58 @@ const axios = require('axios'); // To call the Train-Ticket Service
 exports.bookTicket2 = async (req, res) => {
     const { userId, trainId, seatId } = req.body;
 
-    // Fetch ticket info from Train-Ticket Service
     try {
 
-        console.log('amit 1');
-    
-        const ticketResponse = await axios.get(`http://localhost:5001/api/trains/${trainId}`);
+        console.log('before pool query');
+        // Step 1: Call Train-Ticket Service to check seat availability via HTTP
+        const ticketResponse = await axios.post('http://train-ticket-service:5001/api/trains/seats', {
+            trainId,
+            seatId
+        });
+        
+        console.log('after pool query');
 
-        console.log('amit 2');
+        // Step 2: Check the seat availability in the response from Train-Ticket Service
+        const seat = ticketResponse.data;
 
-        const seat = ticketResponse.data.availableTickets.find(ticket => ticket.id === seatId);
+        console.log('seat ->' + seat);
 
-        console.log('amit 3');
-
-        if (seat && seat.status === 'available') {
-            // Update ticket status to booked and insert into bookings table
-            await db.query('UPDATE tickets SET status = $1 WHERE id = $2', ['booked', seatId]);
-            await db.query('INSERT INTO bookings (user_id, train_id, seat_id, status, booking_time) VALUES ($1, $2, $3, $4, NOW())',
-                           [userId, trainId, seatId, 'confirmed']);
-            res.status(201).json({ message: 'Booking successful' });
-        } else {
-            res.status(400).json({ message: 'Seat is already booked' });
+        if (!seat) {
+            return res.status(404).json({ message: 'Seat not found' });
         }
+
+        if (seat.status !== 'available') {
+            return res.status(400).json({ message: 'Seat is already booked' });
+        }
+
+        // Step 3: If the seat is available, proceed to update the shared database
+        await db.query(
+            'UPDATE tickets SET status = $1 WHERE train_id = $2 AND seat_number = $3',
+            ['booked', trainId, seatId]
+        );
+
+        // // Step 4: Insert the booking record into the bookings table
+        // const result = await db.query(
+        //     'INSERT INTO bookings (user_id, train_id, seat_id, status, booking_time) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+        //     [userId, trainId, seatId, 'confirmed']
+        // );
+
+        const result = await db.query(
+            'INSERT INTO bookings (user_id, train_id, seat_id, status, booking_time) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [userId, trainId, seat.id, 'booked', new Date()]
+        );
+        
+        await axios.post('http://notification-service:6000/api/notifications/send-email', {
+            email: "amit.saha.v123@gmail.com",          // Specify recipient's email address
+            subject: "Booking Confirmation",           // Specify subject of the email
+            message: `Your booking for train ${trainId}, seat ${seatId} has been confirmed.` // Email message
+        });
+
+        // Step 5: Respond with the booking confirmation
+        res.status(201).json({ message: 'Booking successful', booking: result.rows[0] });
     } catch (error) {
-        res.status(500).json({ message: 'Errordsadssdfasd booking seat', error: error.message });
+        console.error('Error booking ticket:', error.message);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
 
@@ -39,6 +67,8 @@ exports.bookTicket = async (req, res) => {
     try {
         // Check if the seat is available (example logic)
         //get all tickets and send to client
+        
+        console.log('before pool query');
 
         const allTickets = await db.query('SELECT * FROM tickets');
 
