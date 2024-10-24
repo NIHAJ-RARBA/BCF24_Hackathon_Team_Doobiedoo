@@ -1,0 +1,44 @@
+name: Continuous Integration for Booking Service
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./services/booking  # Adjust this to the booking service directory
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"  # Specify the Node.js version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Set up PostgreSQL service for testing
+      - name: Set up PostgreSQL
+        uses: harmon758/postgresql-action@v1.2.0
+        with:
+          postgresql version: '13'  # Use PostgreSQL version 13 for testing
+          postgresql username: ${{ secrets.DB_USER }}
+          postgresql password: ${{ secrets.DB_PASSWORD }}
+          postgresql database: ${{ secrets.DB_NAME }}
+
+      # Step 5: Run the test
+      - name: Run tests
+        run: npm test
+
