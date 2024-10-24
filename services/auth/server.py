@@ -14,7 +14,7 @@ server.config["MYSQL_HOST"] = os.environ.get("MYSQL_HOST")
 server.config["MYSQL_USER"] = os.environ.get("MYSQL_USER")
 server.config["MYSQL_PASSWORD"] = os.environ.get("MYSQL_PASSWORD")
 server.config["MYSQL_DB"] = os.environ.get("MYSQL_DB")
-server.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT"))
+server.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT", 3306))
 
 # Define a route for the root URL
 @server.route('/', methods=["GET"])
@@ -113,4 +113,4 @@ def createJWT(username, secret, authz):
 
 
 if __name__ == "__main__":
-    server.run(host="0.0.0.0", port=5001)
+    server.run(host="0.0.0.0", port=5050)
