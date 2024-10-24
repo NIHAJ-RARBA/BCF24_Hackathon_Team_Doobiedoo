@@ -1,0 +1,21 @@
+{
+    "name": "train-ticket-service",
+    "version": "1.0.0",
+    "description": "A train ticket service microservice for handling trains and ticket bookings",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js",
+      "dev": "nodemon app.js"
+    },
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.18.2",
+      "pg": "^8.7.3",
+      "dotenv": "^10.0.0"
+    },
+    "devDependencies": {
+      "nodemon": "^2.0.15"
+    }
+  }
+  
