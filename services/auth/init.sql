@@ -1,9 +1,11 @@
 CREATE USER 'auth_user'@'localhost' IDENTIFIED BY 'Auth123';
 
-CREATE DATABASE auth;
+CREATE DATABASE IF NOT EXISTS auth;
+
 
 GRANT ALL PRIVILEGES ON auth.* TO 'auth_user'@'localhost';
 
+-- Switch to the auth database
 USE auth;
 
 CREATE TABLE user (

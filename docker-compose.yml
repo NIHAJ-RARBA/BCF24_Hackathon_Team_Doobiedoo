@@ -9,7 +9,7 @@ services:
     volumes:
       - ./services/auth/init.sql:/docker-entrypoint-initdb.d/init.sql  # Initialize with the SQL script
     ports:
-      - "3306:3306"
+      - "3350:3350"
 
 
   shared-db:
