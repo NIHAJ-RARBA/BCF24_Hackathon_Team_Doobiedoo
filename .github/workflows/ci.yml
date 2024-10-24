@@ -1,4 +1,32 @@
-name: Continuous Integration for Notification Service
+# name: Continuous Integration for Notification Service
+
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./services/notification  # Adjust to your Notification Service directory
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: "14"
+
+#       - name: Install dependencies
+#         run: npm install
+
+
+name: Continuous Integration for Auth Service
 
 on:
   pull_request:
@@ -9,9 +37,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     defaults:
       run:
-        working-directory: ./services/notification  # Adjust to your Notification Service directory
+        working-directory: ./auth-service  # Set to the auth-service directory
 
     steps:
       - name: Checkout code
@@ -20,7 +49,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: "20"
 
       - name: Install dependencies
         run: npm install
+
+      - name: Run tests
+        run: npm test  # Ensure this command runs tests as per package.json
