@@ -11,5 +11,7 @@ app.use('/api/bookings', bookingRoutes);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Booking service running on port ${port}`);
+  //console.log(`Booking service running on port ${port}`);
 });
+
+module.exports=app;
