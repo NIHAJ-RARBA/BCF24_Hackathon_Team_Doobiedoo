@@ -1,0 +1,38 @@
+name: Continuous Deployment for Notification Service
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install latest Docker compose
+        run: |
+          VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')
+          INSTALLED_VERSION=v$(docker-compose --version 2>/dev/null | grep -Po '\d+\.\d+\.\d+')
+          if [ "$INSTALLED_VERSION" != "$VERSION" ]; then
+            echo "Installing/Updating docker-compose to version $VERSION from $INSTALLED_VERSION"
+            DESTINATION=/usr/local/bin/docker-compose
+            sudo curl -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-$(uname -s)-$(uname -m) -o $DESTINATION
+            sudo chmod +x $DESTINATION
+          else
+            echo "docker-compose is already up-to-date."
+          fi
+
+      - name: Build Docker image for Notification Service
+        run: docker build -t 'your-dockerhub-username/notification-service:${{ github.sha }}' ./notification
+
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username '${{ secrets.DOCKER_LOGIN }}' --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push 'your-dockerhub-username/notification-service:${{ github.sha }}'
+
+      - name: Deploy to VM using Docker Compose
+        run: |
+          sudo docker-compose down -v && sudo docker-compose up -d --build
