@@ -1,4 +1,15 @@
 services:
+  auth-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: auth
+      MYSQL_ROOT_PASSWORD: OrewaNihal001
+    volumes:
+      - ./services/auth/init.sql:/docker-entrypoint-initdb.d/init.sql  # Initialize with the SQL script
+    ports:
+      - "3350:3350"
+
+
   shared-db:
     image: postgres:13
     environment:
@@ -45,7 +56,7 @@ services:
   notification-service:
     build: ./services/notification  # Adjust to the correct path where the Dockerfile is located
     ports:
-      - "6000:6000"  # Map port 5003 on the host to port 5003 in the container
+      - "6000:6000"  # Map port 6000 on the host to port 6000 in the container
     environment:
       - NODE_ENV=production
     networks:
@@ -53,4 +64,18 @@ services:
 
 networks:
   app-network:
+      - NODE_ENV=production  # You can add more environment variables if necessary
+
+  auth-service:
+    build: ./services/auth
+    environment:
+      MYSQL_HOST: auth-db  # Connects to the new MySQL instance for auth service
+      MYSQL_USER: root
+      MYSQL_PASSWORD: OrewaNihal001
+      MYSQL_DB: auth
+      JWT_SECRET: sarcasm
+    ports:
+      - "5050:5050"
+    depends_on:
+      - auth-db  # Ensure the new MySQL instance starts before Auth Service
    
