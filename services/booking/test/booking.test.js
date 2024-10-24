@@ -1,6 +1,6 @@
 // booking.test.js
 const request = require('supertest');
-const app = require('../app'); // Assuming your Express app is exported from app.js
+const app = require('../src/app'); // Assuming your Express app is exported from app.js
 
 describe('Booking API', () => {
   it('POST /api/bookings/book-ticket - Create a new booking', async () => {
