@@ -1,0 +1,13 @@
+POST http://localhost:5003/api/notifications/send-email
+
+content-type: application/json
+
+
+{
+  "email": "amit.saha.v123@gmail.com",
+  "subject": "Real Test Email",
+  "message": "This is a real test message"
+}
+###
+
+GET http://localhost:5003/api/notifications/health

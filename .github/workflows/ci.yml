@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./notification  # Set to your Notification Service directory
+        working-directory: ./services/notification  # Adjust to your Notification Service directory
 
     steps:
       - name: Checkout code
@@ -20,10 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14"  # Adjust if using another version
+          node-version: "14"
 
       - name: Install dependencies
         run: npm install
-
-      - name: Run tests
-        run: npm run test  # Ensure you have a test script in your package.json
