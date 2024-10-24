@@ -1,5 +1,3 @@
-
-
 services:
   shared-db:
     image: postgres:13
@@ -10,7 +8,9 @@ services:
     volumes:
       - ./services/train-ticket-booking-db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Initialize the shared database
     ports:
-      - "5432:5432"                        # Expose PostgreSQL on port 5432
+      - "5432:5432"
+    networks:
+      - app-network                        # Expose PostgreSQL on port 5432
 
   train-ticket-service:
     build: ./services/train-ticket-service # Ensure the correct relative path to train-ticket-service
@@ -23,7 +23,9 @@ services:
     ports:
       - "5001:5001"                        # Expose Train-Ticket Service on port 5001
     depends_on:
-      - shared-db                          # Ensure PostgreSQL starts before Train-Ticket Service
+      - shared-db
+    networks:
+      - app-network                          # Ensure PostgreSQL starts before Train-Ticket Service
 
   booking-service:
     build: ./services/booking              # Ensure the correct relative path to booking-service
@@ -36,12 +38,19 @@ services:
     ports:
       - "5002:5002"                        # Expose Booking Service on port 5002
     depends_on:
-      - shared-db                          # Ensure PostgreSQL starts before Booking Service
+      - shared-db
+    networks:
+      - app-network                          # Ensure PostgreSQL starts before Booking Service
 
- notification-service:
+  notification-service:
     build: ./services/notification  # Adjust to the correct path where the Dockerfile is located
     ports:
       - "6000:6000"  # Map port 5003 on the host to port 5003 in the container
     environment:
-      - NODE_ENV=production  # You can add more environment variables if necessary
+      - NODE_ENV=production
+    networks:
+      - app-network  # You can add more environment variables if necessary
+
+networks:
+  app-network:
    
