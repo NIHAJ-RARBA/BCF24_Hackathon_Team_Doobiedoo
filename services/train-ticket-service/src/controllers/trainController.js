@@ -9,8 +9,10 @@ exports.getTrains = async (req, res) => {
 
 // Get train details and available tickets for a specific train
 exports.getTrainDetails = async (req, res) => {
+
+    const { trainId } = req.body;
     
-    const trainId = req.params.trainId;
+    
     const trainDetails = await db.query('SELECT * FROM trains WHERE id = $1', [trainId]);
 
     if (trainDetails.rows.length > 0) {
