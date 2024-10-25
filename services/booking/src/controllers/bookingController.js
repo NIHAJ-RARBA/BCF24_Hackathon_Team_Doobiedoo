@@ -4,7 +4,7 @@ const axios = require('axios'); // To call the Train-Ticket Service
 
 
 exports.bookTicket2 = async (req, res) => {
-    const { trainId, seatId, token } = req.body;
+    const { userId, trainId, seatId, token } = req.body;
 
     try {
         console.log('before pool query,', token);

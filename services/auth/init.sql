@@ -1,9 +1,8 @@
-CREATE USER 'auth_user'@'localhost' IDENTIFIED BY 'Auth123';
+CREATE USER 'auth_user' @'localhost' IDENTIFIED BY 'Auth123';
 
 CREATE DATABASE IF NOT EXISTS auth;
 
-
-GRANT ALL PRIVILEGES ON auth.* TO 'auth_user'@'localhost';
+GRANT ALL PRIVILEGES ON auth.* TO 'auth_user' @'localhost';
 
 -- Switch to the auth database
 USE auth;
@@ -14,9 +13,7 @@ CREATE TABLE user (
   password VARCHAR(255) NOT NULL
 );
 
-INSERT INTO user (email, password) VALUES ('test@email.com', '123');
-
-  
-
-
-
+INSERT INTO
+  user (email, password)
+VALUES
+  ('test@email.com', '123');
