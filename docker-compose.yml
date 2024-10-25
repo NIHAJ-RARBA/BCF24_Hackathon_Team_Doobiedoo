@@ -7,8 +7,9 @@ services:
     volumes:
       - ./services/auth/init.sql:/docker-entrypoint-initdb.d/init.sql  # Initialize with the SQL script
     ports:
-      - "3350:3350"
-
+      - "3350:3306"  # Use the correct MySQL port
+    networks:
+      - app-network  # Connect to the common network
 
   shared-db:
     image: postgres:13
@@ -21,7 +22,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - app-network                        # Expose PostgreSQL on port 5432
+      - app-network  # Connect to the common network
 
   train-ticket-service:
     build: ./services/train-ticket-service # Ensure the correct relative path to train-ticket-service
@@ -36,7 +37,7 @@ services:
     depends_on:
       - shared-db
     networks:
-      - app-network                          # Ensure PostgreSQL starts before Train-Ticket Service
+      - app-network  # Ensure PostgreSQL starts before Train-Ticket Service
 
   booking-service:
     build: ./services/booking              # Ensure the correct relative path to booking-service
@@ -51,7 +52,7 @@ services:
     depends_on:
       - shared-db
     networks:
-      - app-network                          # Ensure PostgreSQL starts before Booking Service
+      - app-network  # Ensure PostgreSQL starts before Booking Service
 
   notification-service:
     build: ./services/notification  # Adjust to the correct path where the Dockerfile is located
@@ -61,10 +62,6 @@ services:
       - NODE_ENV=production
     networks:
       - app-network  # You can add more environment variables if necessary
-
-networks:
-  app-network:
-      - NODE_ENV=production  # You can add more environment variables if necessary
 
   auth-service:
     build: ./services/auth
@@ -78,4 +75,9 @@ networks:
       - "5050:5050"
     depends_on:
       - auth-db  # Ensure the new MySQL instance starts before Auth Service
-   
+    networks:
+      - app-network  # Connect to the common network
+
+
+networks:
+  app-network:  # Define the shared network

@@ -4,17 +4,34 @@ const axios = require('axios'); // To call the Train-Ticket Service
 
 
 exports.bookTicket2 = async (req, res) => {
-    const { userId, trainId, seatId } = req.body;
+    const { trainId, seatId, token } = req.body;
 
     try {
+        console.log('before pool query,', token);
+
+        // Validate the token with the auth-service
+        const authResponse = await axios.post('http://auth-service:5050/validate', {}, {
+            headers: { 
+                'Authorization': `Bearer ${token}`  // Ensure Bearer prefix is added
+            }
+        });
+
+        // If the token is invalid, return an error
+        if (authResponse.status !== 200) {
+            return res.status(401).json({ message: "Invalid or expired token" });
+        }
+
+        // Extract the email (username) from the validated token
+        const { username } = authResponse.data;
 
         console.log('before pool query');
+
         // Step 1: Call Train-Ticket Service to check seat availability via HTTP
         const ticketResponse = await axios.post('http://train-ticket-service:5001/api/trains/seats', {
             trainId,
             seatId
         });
-        
+
         console.log('after pool query');
 
         // Step 2: Check the seat availability in the response from Train-Ticket Service
@@ -36,30 +53,27 @@ exports.bookTicket2 = async (req, res) => {
             ['booked', trainId, seatId]
         );
 
-        // // Step 4: Insert the booking record into the bookings table
-        // const result = await db.query(
-        //     'INSERT INTO bookings (user_id, train_id, seat_id, status, booking_time) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-        //     [userId, trainId, seatId, 'confirmed']
-        // );
-
+        // Step 4: Insert the booking record into the bookings table
         const result = await db.query(
             'INSERT INTO bookings (user_id, train_id, seat_id, status, booking_time) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [userId, trainId, seat.id, 'booked', new Date()]
         );
-        
+
+        // Step 5: Send a booking confirmation email to the user's email (from the token)
         await axios.post('http://notification-service:6000/api/notifications/send-email', {
-            email: "amit.saha.v123@gmail.com",          // Specify recipient's email address
-            subject: "Booking Confirmation",           // Specify subject of the email
-            message: `Your booking for train ${trainId}, seat ${seatId} has been confirmed.` // Email message
+            email: username,  // Use the email extracted from the token
+            subject: "Booking Confirmation", 
+            message: `Your booking for train ${trainId}, seat ${seatId} has been confirmed.`
         });
 
-        // Step 5: Respond with the booking confirmation
+        // Step 6: Respond with the booking confirmation
         res.status(201).json({ message: 'Booking successful', booking: result.rows[0] });
     } catch (error) {
         console.error('Error booking ticket:', error.message);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
+
 
 exports.bookTicket = async (req, res) => {
     const { userId, trainId, seatId } = req.body;
