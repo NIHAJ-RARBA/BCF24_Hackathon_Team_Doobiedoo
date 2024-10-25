@@ -39,20 +39,6 @@ services:
     networks:
       - app-network  # Ensure PostgreSQL starts before Train-Ticket Service
 
-  booking-service:
-    build: ./services/booking              # Ensure the correct relative path to booking-service
-    environment:
-      DB_HOST: shared-db
-      DB_USER: postgres
-      DB_PASSWORD: yourpassword
-      DB_NAME: train_booking_db
-      DB_PORT: 5432
-    ports:
-      - "5002:5002"                        # Expose Booking Service on port 5002
-    depends_on:
-      - shared-db
-    networks:
-      - app-network  # Ensure PostgreSQL starts before Booking Service
 
   notification-service:
     build: ./services/notification  # Adjust to the correct path where the Dockerfile is located
@@ -77,6 +63,30 @@ services:
       - auth-db  # Ensure the new MySQL instance starts before Auth Service
     networks:
       - app-network  # Connect to the common network
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  booking-service:
+    build: ./services/booking
+    environment:
+      DB_HOST: shared-db
+      DB_USER: postgres
+      DB_PASSWORD: yourpassword
+      DB_NAME: train_booking_db
+      DB_PORT: 5432
+      REDIS_HOST: redis  # Correct Redis service name
+      REDIS_PORT: 6379
+    ports:
+      - "5002:5002"
+    depends_on:
+      - shared-db
+      - redis  # Ensure Redis starts before booking-service
+    networks:
+      - app-network
 
 
 networks:
