@@ -1,0 +1,50 @@
+name: Continuous Integration for Booking Service
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./services/booking  # Adjust to your Booking Service directory
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"  # Adjust to your Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test -- --forceExit  # Ensures Jest forces exit after test run
+
+  # This will only run if the test job is successful
+  push_to_main:
+    needs: test  # Ensures this job runs only after the 'test' job completes successfully
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Git credentials
+        run: |
+          git config --global user.email "2105096@ugrad.cse.buet.ac.bd"  # Replace with your email
+          git config --global user.name "FablihaKhan"  # Replace with your username
+
+      - name: Merge changes to main branch
+        run: |
+          git checkout main
+          git pull origin main
+          git merge ${{ github.event.pull_request.head.ref }}  # Merge the PR branch into main
+          git push origin main  # Push the merged changes
