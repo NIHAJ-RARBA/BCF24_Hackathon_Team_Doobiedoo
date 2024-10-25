@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-backend
+  namespace: backend
+spec:
+  rules:
+    - host: home.freedns1.registrar-servers.com
+      http:
+        paths:
+          # Auth Service Endpoints
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80
+
+          
+          # Train Ticket Service Endpoints
+          - path: /train-tickets
+            pathType: Prefix
+            backend:
+              service:
+                name: train-ticket-service
+                port:
+                  number: 80
+
+          # Booking Service Endpoints
+          - path: /book
+            pathType: Prefix
+  ingressClassName: nginx

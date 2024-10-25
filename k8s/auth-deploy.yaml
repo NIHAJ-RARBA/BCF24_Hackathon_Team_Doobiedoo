@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: nihajrarba/auth  # Your image for the auth service
+          image:   # Your image for the auth service
           ports:
             - containerPort: 5050
           envFrom:
