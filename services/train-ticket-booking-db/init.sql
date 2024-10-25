@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS tickets (
 
 CREATE TABLE IF NOT EXISTS bookings (
     id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
     train_id INT NOT NULL,
     seat_id INT NOT NULL,
     status TEXT NOT NULL,

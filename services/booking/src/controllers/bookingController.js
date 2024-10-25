@@ -4,7 +4,7 @@ const axios = require('axios'); // To call the Train-Ticket Service
 
 
 exports.bookTicket2 = async (req, res) => {
-    const { userId, trainId, seatId, token } = req.body;
+    const { trainId, seatId, token } = req.body;
 
     try {
         console.log('before pool query,', token);
@@ -56,7 +56,7 @@ exports.bookTicket2 = async (req, res) => {
         // Step 4: Insert the booking record into the bookings table
         const result = await db.query(
             'INSERT INTO bookings (user_id, train_id, seat_id, status, booking_time) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [userId, trainId, seat.id, 'booked', new Date()]
+            [username, trainId, seat.id, 'booked', new Date()]
         );
 
         // Step 5: Send a booking confirmation email to the user's email (from the token)
